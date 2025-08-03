@@ -1,5 +1,5 @@
-// --- CENTRAL STUDENT DATA STORE ---
-let studentsData = [];
+// --- CENTRAL STUDENT DATA STORE (No longer directly stored in JS, fetched from backend) ---
+let studentsData = []; // This will be populated by fetchStudents()
 
 // --- DOM Elements ---
 const rfidActualScannerInput = document.getElementById('rfidActualScannerInput');
@@ -26,11 +26,12 @@ const newProfilePicturePreview = document.getElementById('newProfilePicturePrevi
 const clearNewProfilePictureBtn = document.getElementById('clearNewProfilePicture'); // On Management Form
 const defaultProfilePictureSrc = "https://via.placeholder.com/120x120?text=No+Photo"; // Default image source
 
+// --- API Base URL ---
+const API_BASE_URL = 'http://127.0.0.1:5000/api'; // Ensure this matches your Flask app.py port
+
+
 // --- RFID Scanner Input Focus Logic ---
-// This function will *attempt* to focus the hidden input.
-// It's called strategically when the RFID Scan tab is active.
 function setRfidScannerFocus() {
-    // Use setTimeout to ensure focus is applied after other DOM updates
     setTimeout(() => {
         rfidActualScannerInput.focus();
     }, 50);
@@ -58,142 +59,188 @@ rfidActualScannerInput.addEventListener('keyup', (e) => {
     }
 });
 
-// --- Function to Process RFID Scan ---
-function processRfidScan(rfidTag) {
-    const mockStudentDatabase = studentsData.reduce((acc, student) => {
-        acc[student.rfidTag] = student;
-        return acc;
-    }, {});
-
-    const student = mockStudentDatabase[rfidTag];
-
-    if (student) {
-        studentNameInput.value = student.studentName;
-        studentIdInput.value = student.studentId;
-        rfidStatusSpan.className = 'text-success'; // Use a class from styles.css
-        rfidStatusSpan.textContent = `Student Found: ${student.studentName} (Status: ${student.status})`;
-        // Set profile picture
-        studentProfilePictureDisplay.src = student.profilePicture || defaultProfilePictureSrc;
-
-        let logs = JSON.parse(localStorage.getItem('rfidAttendanceLogs')) || [];
-        const timestamp = new Date().toLocaleString('en-US', {
-            year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: false
-        });
-
-        const lastLogForStudent = logs.filter(log => log.studentId === student.studentId)
-                                      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-                                      .pop();
-        let logStatus = 'TIME IN';
-        if (lastLogForStudent && lastLogForStudent.status === 'TIME IN') {
-            logStatus = 'TIME OUT';
+// --- Function to Process RFID Scan (Fetches from Backend and Logs Attendance) ---
+async function processRfidScan(rfidTag) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/students`); // Fetch all students to find match
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const students = await response.json();
+        const student = students.find(s => s.rfidTag === rfidTag);
 
-        const logEntry = {
-            timestamp: timestamp,
-            studentId: student.studentId,
-            studentName: student.studentName,
-            status: logStatus
-        };
-        logs.push(logEntry);
-        localStorage.setItem('rfidAttendanceLogs', JSON.stringify(logs));
-        console.log('Attendance Logged:', logEntry);
+        if (student) {
+            studentNameInput.value = student.studentName;
+            studentIdInput.value = student.studentId;
+            rfidStatusSpan.className = 'text-success';
+            rfidStatusSpan.textContent = `Student Found: ${student.studentName} (Status: ${student.status})`;
+            studentProfilePictureDisplay.src = student.profilePicturePath ? `${API_BASE_URL}/${student.profilePicturePath}` : defaultProfilePictureSrc;
 
-        if (document.getElementById('rfid-logs-tab').classList.contains('active')) {
-            loadAttendanceLogs();
+            // Determine TIME IN/OUT status for logging
+            const attendanceResponse = await fetch(`${API_BASE_URL}/attendance`);
+            const allLogs = await attendanceResponse.json();
+            const lastLogForStudent = allLogs
+                .filter(log => log.studentId === student.studentId)
+                .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+                .pop();
+
+            let logStatus = 'TIME IN';
+            if (lastLogForStudent && lastLogForStudent.status === 'TIME IN') {
+                logStatus = 'TIME OUT';
+            }
+
+            const timestamp = new Date().toLocaleString('en-US', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false
+            });
+
+            const logEntry = {
+                timestamp: timestamp,
+                studentId: student.studentId,
+                studentName: student.studentName,
+                status: logStatus
+            };
+
+            // Send attendance log to backend
+            const logResponse = await fetch(`${API_BASE_URL}/attendance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(logEntry)
+            });
+
+            if (logResponse.ok) {
+                console.log('Attendance Logged:', logEntry);
+                if (document.getElementById('rfid-logs-tab').classList.contains('active')) {
+                    loadAttendanceLogs(); // Reload logs if on tab
+                }
+                if (document.getElementById('rfid-reports-tab').classList.contains('active')) {
+                    loadStudentDatabaseReport(); // Reload report if on tab
+                }
+            } else {
+                console.error('Failed to log attendance:', await logResponse.json());
+                alert('Error logging attendance.');
+            }
+
+        } else {
+            studentNameInput.value = 'N/A';
+            studentIdInput.value = 'N/A';
+            rfidStatusSpan.className = 'text-error';
+            rfidStatusSpan.textContent = `Error: Student not found for RFID: ${rfidTag}`;
+            studentProfilePictureDisplay.src = defaultProfilePictureSrc;
+            alert(`Error: Student not found for RFID Tag: ${rfidTag}`);
         }
-        if (document.getElementById('rfid-reports-tab').classList.contains('active')) {
-            loadStudentDatabaseReport();
-        }
-
-    } else {
-        studentNameInput.value = 'N/A';
-        studentIdInput.value = 'N/A';
-        rfidStatusSpan.className = 'text-error'; // Use a class from styles.css
-        rfidStatusSpan.textContent = `Error: Student not found for RFID: ${rfidTag}`;
-        studentProfilePictureDisplay.src = defaultProfilePictureSrc; // Reset picture on error
-        alert(`Error: Student not found for RFID Tag: ${rfidTag}`);
+    } catch (error) {
+        console.error('Error processing RFID scan:', error);
+        rfidStatusSpan.className = 'text-error';
+        rfidStatusSpan.textContent = `Network Error: Could not connect to backend.`;
+        studentProfilePictureDisplay.src = defaultProfilePictureSrc;
+        alert(`Network Error: Could not connect to backend or process scan. Check console for details.`);
     }
 }
 
 
-// --- Manual Entry Button ---
+// --- Manual Entry Button (Now fetches from backend) ---
 if (manualBtn) {
-    manualBtn.addEventListener('click', () => {
-        // Blur the RFID scanner input when manual entry is initiated
+    manualBtn.addEventListener('click', async () => {
         rfidActualScannerInput.blur();
 
         const studentIdPrompt = prompt("Enter Student ID manually:");
         if (studentIdPrompt) {
-            const student = studentsData.find(s => s.studentId === studentIdPrompt);
+            try {
+                const response = await fetch(`${API_BASE_URL}/students`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const students = await response.json();
+                const student = students.find(s => s.studentId === studentIdPrompt);
 
-            if (student) {
-                studentIdInput.value = student.studentId;
-                studentNameInput.value = student.studentName;
-                rfidStatusSpan.className = 'text-success';
-                rfidStatusSpan.textContent = `Manual ID Entered: ${student.studentName} (${student.status})`;
-                studentProfilePictureDisplay.src = student.profilePicture || defaultProfilePictureSrc; // Set picture for manual entry
-                alert(`Manual Student ID entered: ${student.studentId} (${student.studentName})`);
+                if (student) {
+                    studentIdInput.value = student.studentId;
+                    studentNameInput.value = student.studentName;
+                    rfidStatusSpan.className = 'text-success';
+                    rfidStatusSpan.textContent = `Manual ID Entered: ${student.studentName} (${student.status})`;
+                    studentProfilePictureDisplay.src = student.profilePicturePath ? `${API_BASE_URL}/${student.profilePicturePath}` : defaultProfilePictureSrc;
+                    alert(`Manual Student ID entered: ${student.studentId} (${student.studentName})`);
 
-                let logs = JSON.parse(localStorage.getItem('rfidAttendanceLogs')) || [];
-                const timestamp = new Date().toLocaleString('en-US', {
-                    year: 'numeric', month: '2-digit', day: '2-digit',
-                    hour: '2-digit', minute: '2-digit', second: '2-digit',
-                    hour12: false
-                });
+                    const timestamp = new Date().toLocaleString('en-US', {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        hour12: false
+                    });
 
-                const logEntry = {
-                    timestamp: timestamp,
-                    studentId: student.studentId,
-                    studentName: student.studentName,
-                    status: 'MANUAL ENTRY'
-                };
-                logs.push(logEntry);
-                localStorage.setItem('rfidAttendanceLogs', JSON.stringify(logs));
-                console.log('Manual Entry Logged:', logEntry);
+                    const logEntry = {
+                        timestamp: timestamp,
+                        studentId: student.studentId,
+                        studentName: student.studentName,
+                        status: 'MANUAL ENTRY'
+                    };
 
-                if (document.getElementById('rfid-logs-tab').classList.contains('active')) {
-                    loadAttendanceLogs();
+                    const logResponse = await fetch(`${API_BASE_URL}/attendance`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(logEntry)
+                    });
+
+                    if (logResponse.ok) {
+                        console.log('Manual Entry Logged:', logEntry);
+                        if (document.getElementById('rfid-logs-tab').classList.contains('active')) {
+                            loadAttendanceLogs();
+                        }
+                        if (document.getElementById('rfid-reports-tab').classList.contains('active')) {
+                            loadStudentDatabaseReport();
+                        }
+                    } else {
+                        console.error('Failed to log manual attendance:', await logResponse.json());
+                        alert('Error logging manual attendance.');
+                    }
+
+                } else {
+                    studentIdInput.value = studentIdPrompt;
+                    studentNameInput.value = "Unknown (Manual)";
+                    rfidStatusSpan.className = 'text-error';
+                    rfidStatusSpan.textContent = `Manual ID: ${studentIdPrompt} - Student not found in database.`;
+                    studentProfilePictureDisplay.src = defaultProfilePictureSrc;
+                    alert(`Manual Student ID entered: ${studentIdPrompt}. Student not found in database.`);
+
+                    const timestamp = new Date().toLocaleString('en-US', {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        hour12: false
+                    });
+
+                    const logEntry = {
+                        timestamp: timestamp,
+                        studentId: studentIdPrompt,
+                        studentName: "Unknown",
+                        status: 'MANUAL ENTRY (UNKNOWN)'
+                    };
+
+                    const logResponse = await fetch(`${API_BASE_URL}/attendance`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(logEntry)
+                    });
+
+                    if (logResponse.ok) {
+                        console.log('Manual Entry Logged:', logEntry);
+                        if (document.getElementById('rfid-logs-tab').classList.contains('active')) {
+                            loadAttendanceLogs();
+                        }
+                        if (document.getElementById('rfid-reports-tab').classList.contains('active')) {
+                            loadStudentDatabaseReport();
+                        }
+                    } else {
+                        console.error('Failed to log manual unknown attendance:', await logResponse.json());
+                        alert('Error logging manual unknown attendance.');
+                    }
                 }
-                if (document.getElementById('rfid-reports-tab').classList.contains('active')) {
-                    loadStudentDatabaseReport();
-                }
-
-            } else {
-                studentIdInput.value = studentIdPrompt;
-                studentNameInput.value = "Unknown (Manual)";
+            } catch (error) {
+                console.error('Error with manual entry:', error);
                 rfidStatusSpan.className = 'text-error';
-                rfidStatusSpan.textContent = `Manual ID: ${studentIdPrompt} - Student not found in database.`;
-                studentProfilePictureDisplay.src = defaultProfilePictureSrc; // Reset picture for unknown manual entry
-                alert(`Manual Student ID entered: ${studentIdPrompt}. Student not found in database.`);
-
-                  let logs = JSON.parse(localStorage.getItem('rfidAttendanceLogs')) || [];
-                  const timestamp = new Date().toLocaleString('en-US', {
-                      year: 'numeric', month: '2-digit', day: '2-digit',
-                      hour: '2-digit', minute: '2-digit', second: '2-digit',
-                      hour12: false
-                  });
-
-                  const logEntry = {
-                      timestamp: timestamp,
-                      studentId: studentIdPrompt,
-                      studentName: "Unknown",
-                      status: 'MANUAL ENTRY (UNKNOWN)'
-                  };
-                  logs.push(logEntry);
-                  localStorage.setItem('rfidAttendanceLogs', JSON.stringify(logs));
-                  console.log('Manual Entry Logged:', logEntry);
-
-                  if (document.getElementById('rfid-logs-tab').classList.contains('active')) {
-                      loadAttendanceLogs();
-                  }
-                  if (document.getElementById('rfid-reports-tab').classList.contains('active')) {
-                      loadStudentDatabaseReport();
-                  }
+                rfidStatusSpan.textContent = `Network Error: Could not connect to backend.`;
+                studentProfilePictureDisplay.src = defaultProfilePictureSrc;
+                alert(`Network Error: Could not connect to backend for manual entry. Check console for details.`);
             }
         }
-        // Always re-focus the scanner input after manual entry attempt
         setRfidScannerFocus();
     });
 }
@@ -211,14 +258,12 @@ if (rfidInternalTabNav) {
             const targetTabId = targetButton.dataset.tab;
             document.getElementById(targetTabId).classList.add('active');
 
-            // Manage scanner focus based on the active tab
             if (targetTabId === 'rfid-scan-tab') {
-                setRfidScannerFocus(); // Focus scanner input
+                setRfidScannerFocus();
             } else {
-                rfidActualScannerInput.blur(); // Blur scanner input if not on scan tab
+                rfidActualScannerInput.blur();
             }
 
-            // Load content for the newly active tab
             if (targetTabId === 'rfid-logs-tab') {
                 loadAttendanceLogs();
             } else if (targetTabId === 'rfid-reports-tab') {
@@ -231,71 +276,72 @@ if (rfidInternalTabNav) {
 }
 
 // --- Event listeners to manage RFID scanner focus when form inputs are active ---
-// This prevents the scanner from taking focus while user is typing in forms.
 document.addEventListener('focusin', (e) => {
-    // Check if the currently focused element is an input or select
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
-        // And if it's *not* the hidden RFID scanner input itself
         if (e.target.id !== 'rfidActualScannerInput') {
-            // Blur the RFID scanner input to allow interaction with the form field
             rfidActualScannerInput.blur();
         }
     }
 });
 
-// Re-focus the RFID scanner input if the user clicks outside form inputs
-// and the RFID Scan tab is active.
 document.addEventListener('click', (e) => {
     const rfidScanTab = document.getElementById('rfid-scan-tab');
     const clickedInsideForm = e.target.closest('#addRfidForm');
     const clickedInsideLogsFilter = e.target.closest('#rfid-logs-tab') && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON');
 
-    // If RFID Scan tab is active and click is not within other form elements
     if (rfidScanTab && rfidScanTab.classList.contains('active') && !clickedInsideForm && !clickedInsideLogsFilter) {
-        // Ensure the scanner input is focused
         setRfidScannerFocus();
     }
 });
 
 
-// --- Function to load and display attendance logs from localStorage ---
-function loadAttendanceLogs() {
+// --- Function to load and display attendance logs from backend ---
+async function loadAttendanceLogs() {
     const logsContainer = document.getElementById('logs-container');
     if (!logsContainer) return;
 
     logsContainer.innerHTML = '';
-    const logs = JSON.parse(localStorage.getItem('rfidAttendanceLogs')) || [];
-
     const logDateFilter = document.getElementById('log-date-filter');
     const selectedDate = logDateFilter ? logDateFilter.value : null;
 
-    const filteredLogs = selectedDate
-        ? logs.filter(log => {
-            const logDate = new Date(log.timestamp);
-            const logDateFormatted = logDate.getFullYear() + '-' +
-                                   String(logDate.getMonth() + 1).padStart(2, '0') + '-' +
-                                   String(logDate.getDate()).padStart(2, '0');
-            return logDateFormatted === selectedDate;
-        })
-        : logs;
+    try {
+        const response = await fetch(`${API_BASE_URL}/attendance`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        let logs = await response.json();
 
-    if (filteredLogs.length === 0) {
-        logsContainer.innerHTML = '<tr><td colspan="4" class="text-center">No attendance logs found for the selected date or no logs yet.</td></tr>';
-        return;
+        const filteredLogs = selectedDate
+            ? logs.filter(log => {
+                const logDate = new Date(log.timestamp);
+                const logDateFormatted = logDate.getFullYear() + '-' +
+                                        String(logDate.getMonth() + 1).padStart(2, '0') + '-' +
+                                        String(logDate.getDate()).padStart(2, '0');
+                return logDateFormatted === selectedDate;
+            })
+            : logs;
+
+        if (filteredLogs.length === 0) {
+            logsContainer.innerHTML = '<tr><td colspan="4" class="text-center">No attendance logs found for the selected date or no logs yet.</td></tr>';
+            return;
+        }
+
+        filteredLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+        filteredLogs.forEach(log => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${log.timestamp}</td>
+                <td>${log.studentId}</td>
+                <td>${log.studentName}</td>
+                <td>${log.status}</td>
+            `;
+            logsContainer.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading attendance logs:', error);
+        logsContainer.innerHTML = `<tr><td colspan="4" class="text-center text-error">Failed to load logs. Network error or backend issue.</td></tr>`;
     }
-
-    filteredLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-    filteredLogs.forEach(log => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${log.timestamp}</td>
-            <td>${log.studentId}</td>
-            <td>${log.studentName}</td>
-            <td>${log.status}</td>
-        `;
-        logsContainer.appendChild(row);
-    });
 }
 
 const refreshLogsBtn = document.getElementById('refresh-logs');
@@ -308,86 +354,90 @@ if (logDateFilter) {
     logDateFilter.addEventListener('change', loadAttendanceLogs);
 }
 
-// --- Function to load and display student database report ---
-function loadStudentDatabaseReport() {
+// --- Function to load and display student database report from backend ---
+async function loadStudentDatabaseReport() {
     const studentDbTableBody = document.getElementById('student-db');
     if (!studentDbTableBody) return;
 
     studentDbTableBody.innerHTML = '';
-    const students = studentsData;
 
-    if (students.length === 0) {
-        studentDbTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No students in database.</td></tr>';
-        return;
-    }
+    try {
+        const studentsResponse = await fetch(`${API_BASE_URL}/students`);
+        if (!studentsResponse.ok) throw new Error(`HTTP error! status: ${studentsResponse.status}`);
+        const students = await studentsResponse.json();
 
-    const allLogs = JSON.parse(localStorage.getItem('rfidAttendanceLogs')) || [];
+        const logsResponse = await fetch(`${API_BASE_URL}/attendance`);
+        if (!logsResponse.ok) throw new Error(`HTTP error! status: ${logsResponse.status}`);
+        const allLogs = await logsResponse.json();
 
-    students.forEach(student => {
-        const studentLogs = allLogs.filter(log => log.studentId === student.studentId);
-        const totalScans = studentLogs.length;
-        const lastScanLog = studentLogs.length > 0
-            ? studentLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]
-            : null;
-        const lastScanTimestamp = lastScanLog ? lastScanLog.timestamp : 'N/A';
-        const lastScanStatus = lastScanLog ? lastScanLog.status : '';
+        if (students.length === 0) {
+            studentDbTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No students in database.</td></tr>';
+            return;
+        }
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${student.studentId}</td>
-            <td>${student.studentName}</td>
-            <td>${lastScanTimestamp} <span class="text-xs text-secondary">(${lastScanStatus})</span></td>
-            <td>${totalScans}</td>
-        `;
-        studentDbTableBody.appendChild(row);
-    });
-}
+        students.forEach(student => {
+            const studentLogs = allLogs.filter(log => log.studentId === student.studentId);
+            const totalScans = studentLogs.length;
+            const lastScanLog = studentLogs.length > 0
+                ? studentLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]
+                : null;
+            const lastScanTimestamp = lastScanLog ? lastScanLog.timestamp : 'N/A';
+            const lastScanStatus = lastScanLog ? lastScanLog.status : '';
 
-// --- RFID Management Tab Logic ---
-function saveStudentsData() {
-    localStorage.setItem('rfidStudents', JSON.stringify(studentsData));
-}
-
-function loadStudentsData() {
-    const storedData = localStorage.getItem('rfidStudents');
-    if (storedData) {
-        studentsData = JSON.parse(storedData);
-    } else {
-        studentsData = [
-            { rfidTag: "3498485411", studentName: "Nathaniel James Ong", studentId: "2021102670", status: "Enrolled", profilePicture: null },
-            { rfidTag: "9876543210", studentName: "Maria Clara", studentId: "2022-67890", status: "Alumni", profilePicture: null },
-            { rfidTag: "1122334455", studentName: "Crisostomo Ibarra", studentId: "2024-54321", status: "Enrolled", profilePicture: null }
-        ];
-        saveStudentsData();
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${student.studentId}</td>
+                <td>${student.studentName}</td>
+                <td>${lastScanTimestamp} <span class="text-xs text-secondary">(${lastScanStatus})</span></td>
+                <td>${totalScans}</td>
+            `;
+            studentDbTableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading student database report:', error);
+        studentDbTableBody.innerHTML = `<tr><td colspan="4" class="text-center text-error">Failed to load student data. Network error or backend issue.</td></tr>`;
     }
 }
 
-function loadRegisteredRfids() {
+// --- RFID Management Tab Logic (Now uses API) ---
+
+// Function to fetch and display registered RFIDs
+async function loadRegisteredRfids() {
     registeredRfidList.innerHTML = '';
+    try {
+        const response = await fetch(`${API_BASE_URL}/students`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        studentsData = await response.json(); // Update global studentsData variable
 
-    if (studentsData.length === 0) {
-        registeredRfidList.innerHTML = '<tr><td colspan="5" class="text-center">No RFID tags registered yet.</td></tr>';
-        return;
+        if (studentsData.length === 0) {
+            registeredRfidList.innerHTML = '<tr><td colspan="5" class="text-center">No RFID tags registered yet.</td></tr>';
+            return;
+        }
+
+        studentsData.forEach((student) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${student.rfidTag}</td>
+                <td>${student.studentId}</td>
+                <td>
+                    <div class="flex items-center gap-2">
+                        <img src="${student.profilePicturePath ? `${API_BASE_URL}/${student.profilePicturePath}` : defaultProfilePictureSrc}" alt="P" class="table-profile-thumb">
+                        <span>${student.studentName}</span>
+                    </div>
+                </td>
+                <td>${student.status}</td>
+                <td class="actions">
+                    <button class="delete-rfid-btn" data-id="${student.id}">Delete</button>
+                </td>
+            `;
+            registeredRfidList.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading registered RFIDs:', error);
+        registeredRfidList.innerHTML = `<tr><td colspan="5" class="text-center text-error">Failed to load registered RFIDs. Network error or backend issue.</td></tr>`;
     }
-
-    studentsData.forEach((student, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${student.rfidTag}</td>
-            <td>${student.studentId}</td>
-            <td>
-                <div class="flex items-center gap-2">
-                    <img src="${student.profilePicture || defaultProfilePictureSrc}" alt="P" class="table-profile-thumb">
-                    <span>${student.studentName}</span>
-                </div>
-            </td>
-            <td>${student.status}</td>
-            <td class="actions">
-                <button class="delete-rfid-btn" data-index="${index}">Delete</button>
-            </td>
-        `;
-        registeredRfidList.appendChild(row);
-    });
 }
 
 // --- Profile Picture Preview Logic (RFID Management Tab) ---
@@ -419,70 +469,117 @@ clearNewProfilePictureBtn.addEventListener('click', () => {
 });
 
 
-addRfidForm.addEventListener('submit', (e) => {
+addRfidForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const rfidTag = newRfidTagInput.value.trim();
     const studentName = newStudentNameInput.value.trim();
     const studentId = newStudentIdInput.value.trim();
     const status = newStudentStatusSelect.value;
+    const profilePicture = newProfilePicturePreview.classList.contains('hidden') ? null : newProfilePicturePreview.src;
 
-    const isDuplicateRfid = studentsData.some(student => student.rfidTag === rfidTag);
-    const isDuplicateId = studentsData.some(student => student.studentId === studentId);
-
-    if (isDuplicateRfid) {
+    // Client-side validation for duplicates (optional, backend will also handle)
+    const existingStudents = await (await fetch(`${API_BASE_URL}/students`)).json();
+    if (existingStudents.some(student => student.rfidTag === rfidTag)) {
         alert('Error: RFID Tag already exists! Please use a unique tag.');
         return;
     }
-    if (isDuplicateId) {
+    if (existingStudents.some(student => student.studentId === studentId)) {
         alert('Error: Student ID already exists! Please use a unique ID.');
         return;
     }
 
-    const newStudent = {
-        rfidTag: rfidTag,
-        studentName: studentName,
-        studentId: studentId,
-        status: status,
-        profilePicture: newProfilePicturePreview.classList.contains('hidden') ? null : newProfilePicturePreview.src // Store Base64 or null
-    };
+    try {
+        const response = await fetch(`${API_BASE_URL}/students`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                rfidTag: rfidTag,
+                studentName: studentName,
+                studentId: studentId,
+                status: status,
+                profilePicture: profilePicture // This is the Base64 string
+            })
+        });
 
-    studentsData.push(newStudent);
-    saveStudentsData();
-    loadRegisteredRfids();
-    addRfidForm.reset();
-    newProfilePictureInput.value = ''; // Ensure file input is cleared
-    newProfilePicturePreview.src = defaultProfilePictureSrc; // Reset preview image
-    newProfilePicturePreview.classList.add('hidden'); // Hide preview after successful add
-    alert('RFID Tag and Student added successfully!');
-    console.log('New student added:', newStudent);
+        if (response.ok) {
+            const addedStudent = await response.json();
+            alert('RFID Tag and Student added successfully!');
+            console.log('New student added:', addedStudent);
+            addRfidForm.reset();
+            newProfilePictureInput.value = '';
+            newProfilePicturePreview.src = defaultProfilePictureSrc;
+            newProfilePicturePreview.classList.add('hidden');
+            loadRegisteredRfids(); // Reload the list
+        } else {
+            const errorData = await response.json();
+            alert(`Error adding student: ${errorData.error || response.statusText}`);
+            console.error('Error adding student:', errorData);
+        }
+    } catch (error) {
+        alert('Network Error: Could not connect to backend to add student.');
+        console.error('Network error on add student:', error);
+    }
 });
 
-registeredRfidList.addEventListener('click', (e) => {
+
+registeredRfidList.addEventListener('click', async (e) => {
     if (e.target.classList.contains('delete-rfid-btn')) {
-        const index = parseInt(e.target.dataset.index);
-        if (confirm('Are you sure you want to delete this RFID tag and student record?')) {
-            studentsData.splice(index, 1);
-            saveStudentsData();
-            loadRegisteredRfids();
-            alert('Student record deleted successfully!');
+        // Data-id on the button now refers to student.id (which is mapped from StudentNo)
+        const studentNoToDelete = e.target.dataset.id;
+        if (confirm(`Are you sure you want to delete student with StudentNo: ${studentNoToDelete}? This cannot be undone.`)) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/students/${studentNoToDelete}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Student record deleted successfully!');
+                    loadRegisteredRfids(); // Reload the list
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error deleting student: ${errorData.error || response.statusText}`);
+                    console.error('Error deleting student:', errorData);
+                }
+            } catch (error) {
+                alert('Network Error: Could not connect to backend to delete student.');
+                console.error('Network error on delete student:', error);
+            }
         }
     }
 });
 
-clearAllRfidsBtn.addEventListener('click', () => {
+
+clearAllRfidsBtn.addEventListener('click', async () => {
     if (confirm('Are you sure you want to DELETE ALL registered RFID tags and student records? This cannot be undone.')) {
-        studentsData = [];
-        saveStudentsData();
-        loadRegisteredRfids();
-        alert('All RFID tags and student records have been cleared.');
+        try {
+            const response = await fetch(`${API_BASE_URL}/students/clear`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                alert('All RFID tags and student records have been cleared.');
+                loadRegisteredRfids(); // Reload the list
+            } else {
+                const errorData = await response.json();
+                alert(`Error clearing students: ${errorData.error || response.statusText}`);
+                console.error('Error clearing students:', errorData);
+            }
+        } catch (error) {
+            alert('Network Error: Could not connect to backend to clear students.');
+            console.error('Network error on clear students:', error);
+        }
     }
 });
 
 
 // --- Initial Load Logic ---
 document.addEventListener('DOMContentLoaded', () => {
-    loadStudentsData();
+    // We no longer load from localStorage. Fetch from API on initial load.
+    // fetchStudents(); // Call this only when the specific tab is activated
+
     // Determine which tab is initially active (or default to 'rfid-scan-tab')
     const initialActiveTabButton = document.querySelector('.tab-btn.active');
     let initialTabId = 'rfid-scan-tab'; // Default to RFID Scan tab
@@ -501,35 +598,43 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (initialTabId === 'rfid-reports-tab') {
         loadStudentDatabaseReport();
     } else if (initialTabId === 'rfid-manage-tab') {
-        loadRegisteredRfids();
+        loadRegisteredRfids(); // This will populate studentsData from the API
     }
 });
 
-// Export Logs to CSV
+// Export Logs to CSV (Now fetches from backend)
 const exportLogsBtn = document.getElementById('export-logs');
 if (exportLogsBtn) {
-    exportLogsBtn.addEventListener('click', () => {
-        const logs = JSON.parse(localStorage.getItem('rfidAttendanceLogs')) || [];
-        if (logs.length === 0) {
-            alert('No logs to export!');
-            return;
+    exportLogsBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/attendance`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const logs = await response.json();
+
+            if (logs.length === 0) {
+                alert('No logs to export!');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Add BOM for Excel compatibility
+            csvContent += "Timestamp,Student ID,Student Name,Status\n";
+
+            logs.forEach(log => {
+                const escapeCsv = (field) => `"${String(field).replace(/"/g, '""')}"`;
+                csvContent += `${escapeCsv(log.timestamp)},${escapeCsv(log.studentId)},${escapeCsv(log.studentName)},${escapeCsv(log.status)}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "rfid_attendance_logs.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            alert('Network Error: Could not connect to backend to export logs.');
+            console.error('Network error on export logs:', error);
         }
-
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Add BOM for Excel compatibility
-        csvContent += "Timestamp,Student ID,Student Name,Status\n";
-
-        logs.forEach(log => {
-            const escapeCsv = (field) => `"${String(field).replace(/"/g, '""')}"`;
-            csvContent += `${escapeCsv(log.timestamp)},${escapeCsv(log.studentId)},${escapeCsv(log.studentName)},${escapeCsv(log.status)}\n`;
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "rfid_attendance_logs.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     });
 }
 
