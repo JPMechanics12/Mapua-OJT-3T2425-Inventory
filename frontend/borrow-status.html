@@ -1,0 +1,75 @@
+<!-- Save as: frontend/borrow-status.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Borrow History</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h2>Check Borrow History</h2>
+
+  <label for="studentNo">Student Number:</label>
+  <input type="text" id="studentNo" placeholder="Enter Student Number">
+  <button onclick="checkStatus()">Check</button>
+
+  <div id="result"></div>
+
+  <script>
+    function checkStatus() {
+      const studentNo = document.getElementById('studentNo').value;
+      if (!studentNo) {
+        document.getElementById('result').innerText = 'Please enter a student number.';
+        return;
+      }
+
+      fetch(`../api/borrow.php?studentNo=${studentNo}`)
+        .then(res => res.json())
+        .then(data => {
+          const resultDiv = document.getElementById('result');
+          if (data.status === 'success') {
+            let table = `
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item Category</th>
+                    <th>Item Details</th>
+                    <th>Borrowed At</th>
+                    <th>Due At</th>
+                    <th>Returned At</th>
+                  </tr>
+                </thead>
+                <tbody>
+            `;
+
+            data.data.forEach(item => {
+              table += `
+                <tr>
+                  <td>${item.ItemCategory}</td>
+                  <td>${item.ItemDetails || 'N/A'}</td>
+                  <td>${item.BorrowedAt}</td>
+                  <td>${item.DueAt || 'N/A'}</td>
+                  <td>${item.ReturnedAt || 'Not yet returned'}</td>
+                </tr>
+              `;
+            });
+
+            table += '</tbody></table>';
+            resultDiv.innerHTML = table;
+          } else {
+            resultDiv.innerHTML = `<p>${data.message}</p>`;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('result').innerText = 'Error fetching status.';
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tracking – Mapúa Inventory</title>
+
+  <!-- Palette variables -->
+  <style>
+    :root {
+      --color-primary: #C8102E;
+      --color-primary-dark: #A10B26;
+      --color-accent: #FFC72C;
+      --color-text: #333333;
+      --color-bg: #F5F5F5;
+      --color-white: #FFFFFF;
+    }
+  </style>
+
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Page-specific CSS -->
+  <link rel="stylesheet" href="tracking.css" />
+  <!-- Page-specific JS -->
+  <script defer src="tracking.js"></script>
+</head>
+<body>
+  <!-- Floating clock placeholder -->
+  <div id="floating-time" class="floating-time"></div>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-profile">
+      <div class="avatar"></div>
+      <div class="user-name">Admin</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="dashboard.html"><span class="icon">📊</span><span class="label">Dashboard</span></a></li>
+        <li><a href="rfid.html"><span class="icon">🏷️</span><span class="label">RFID</span></a></li>
+        <li><a href="tracking.html"> <span class="icon">🛰️</span> <span class="label">Tracking</span></a></li>
+        <li><a href="rooms.html"><span class="icon">🏠</span><span class="label">Rooms</span></a></li>
+        <li><a href="assets.html"><span class="icon">💻</span><span class="label">Assets</span></a></li>
+        <li><a href="reports.html"><span class="icon">📑</span><span class="label">Reports</span></a></li>
+        <li><a href="settings.html"><span class="icon">⚙️</span><span class="label">Settings</span></a></li>
+        <li><a href="users.html"><span class="icon">🧑</span><span class="label">Users</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="signout-btn">🔒 Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <header class="header">
+      <h2>Tracking</h2>
+      <div class="user-menu">
+        <span class="username">Admin 1</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="tracking-section">
+        <h3>Item Borrowing Status</h3>
+        <table class="tracking-table">
+          <thead>
+            <tr>
+              <th>Item ID</th>
+              <th>Item Name</th>
+              <th>Status</th>
+              <th>Borrow Time</th>
+              <th>Return Time</th>
+            </tr>
+          </thead>
+          <tbody id="tracking-body">
+            <!-- Data rows will be inserted here dynamically by tracking.js -->
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

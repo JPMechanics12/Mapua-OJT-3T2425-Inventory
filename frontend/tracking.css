@@ -1,0 +1,44 @@
+.tracking-section {
+  padding: 1rem;
+}
+
+.tracking-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.tracking-table th,
+.tracking-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+  text-transform: capitalize;
+}
+
+.status.pending {
+  background-color: gray;
+}
+
+.status.pending {
+  background-color: gray;
+}
+
+.status.in-use {
+  background-color: orange;
+}
+
+.status.returned {
+  background-color: green;
+}
