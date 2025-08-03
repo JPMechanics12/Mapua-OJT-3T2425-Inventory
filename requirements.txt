@@ -11,6 +11,12 @@ Now you will source, in MySQL shell
 \source "C:\xampp\htdocs\Mapua-OJT-3T2425-Inventory-main\computer_assets_126rows_insert.sql"
 
 
+backend:
+terminal
+.\venv\Scripts\activate
+cd frontend
+python app.py
+npm start/live server
 
 
 
