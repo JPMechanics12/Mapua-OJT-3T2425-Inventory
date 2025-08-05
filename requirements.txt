@@ -18,8 +18,14 @@ cd frontend
 python app.py
 npm start/live server
 
+new pc
+delete venv
+python -m venv venv
+.\venv\Scripts\activate
+pip install Flask Flask-CORS
+cd frontend
 
-
+python app.py
 
 
 
