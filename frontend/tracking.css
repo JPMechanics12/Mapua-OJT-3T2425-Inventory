@@ -1,0 +1,189 @@
+.item-tracking-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+.headcount-section, .form-section, .history-section {
+    background-color: var(--color-white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.item-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.item-card {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-bg);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.item-status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.item-status-indicator.green {
+    background-color: green;
+}
+
+.item-status-indicator.red {
+    background-color: red;
+}
+
+.form-section input, .form-section select, .form-section button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-section button.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    cursor: pointer;
+}
+
+.history-log {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.borrowed-item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f0f4f8;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    border: 1px solid #e0e4e8;
+}
+
+.borrowed-item-details {
+    flex-grow: 1;
+}
+
+.borrowed-item-name {
+    font-weight: bold;
+    color: var(--color-text);
+}
+
+.borrowed-item-borrowed-at {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.return-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.return-controls input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    text-align: center;
+}
+
+.btn-return-all {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-return-all:hover {
+    background-color: #0056b3;
+}
+
+/* Styles for the Floating Clock */
+.floating-time {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: var(--color-white);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    font-weight: bold;
+}
+
+/* Styles for the Tabbed History Section */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+}
+
+.tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-bottom-color 0.2s;
+    color: var(--color-text);
+}
+
+.tab-button:hover {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
+.tab-button.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
+.history-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.history-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: var(--color-white);
+}
+
+.history-card p {
+    margin: 0;
+    padding: 0.25rem 0;
+}
+
+.history-card .status-returned {
+    color: green;
+    font-weight: bold;
+}
+
+.history-card .status-borrowed {
+    color: red;
+    font-weight: bold;
+}
+
+.borrowed-items-container .borrowed-item-card {
+    display: block;
+}
+
