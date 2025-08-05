@@ -14,9 +14,17 @@ Now you will source, in MySQL shell
 backend:
 terminal
 .\venv\Scripts\activate
-cd frontend
+cd backend
+pip install Flask pytz
 python app.py
+
+new terminal frontend
 npm start/live server
+
+pip install Flask pytz
+
+
+
 
 
 
