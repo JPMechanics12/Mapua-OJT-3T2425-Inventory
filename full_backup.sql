@@ -429,54 +429,41 @@ INSERT INTO `users` VALUES (1,'Mark Francis James','Bona','markbona1203@gmail.co
 UNLOCK TABLES;
 
 --
--- Temporary view structure for view `v_currentassets`
---
-
-
-
---
 -- Final view structure for view `v_currentassets`
 --
-
-/*!50001 DROP VIEW IF EXISTS `v_currentassets`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_currentassets` AS select `computerassets`.`AssetID` AS `AssetID`,`computerassets`.`RoomID` AS `RoomID`,`computerassets`.`PCNumber` AS `PCNumber`,`computerassets`.`InstalledAt` AS `InstalledAt`,`computerassets`.`RetiredAt` AS `RetiredAt`,`computerassets`.`MakeModel` AS `MakeModel`,`computerassets`.`SerialNumber` AS `SerialNumber`,`computerassets`.`CPU` AS `CPU`,`computerassets`.`GPU` AS `GPU`,`computerassets`.`RAM_GB` AS `RAM_GB`,`computerassets`.`Storage_GB` AS `Storage_GB`,`computerassets`.`MonitorModel` AS `MonitorModel`,`computerassets`.`MonitorSerial` AS `MonitorSerial`,`computerassets`.`UPSModel` AS `UPSModel`,`computerassets`.`UPSSerial` AS `UPSSerial`,`computerassets`.`CreatedBy` AS `CreatedBy`,`computerassets`.`CreatedAt` AS `CreatedAt` from `computerassets` where (`computerassets`.`RetiredAt` is null) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
+CREATE VIEW `v_currentassets` AS
+SELECT `computerassets`.`AssetID` AS `AssetID`,
+    `computerassets`.`RoomID` AS `RoomID`,
+    `computerassets`.`PCNumber` AS `PCNumber`,
+    `computerassets`.`InstalledAt` AS `InstalledAt`,
+    `computerassets`.`RetiredAt` AS `RetiredAt`,
+    `computerassets`.`MakeModel` AS `MakeModel`,
+    `computerassets`.`SerialNumber` AS `SerialNumber`,
+    `computerassets`.`CPU` AS `CPU`,
+    `computerassets`.`GPU` AS `GPU`,
+    `computerassets`.`RAM_GB` AS `RAM_GB`,
+    `computerassets`.`Storage_GB` AS `Storage_GB`,
+    `computerassets`.`MonitorModel` AS `MonitorModel`,
+    `computerassets`.`MonitorSerial` AS `MonitorSerial`,
+    `computerassets`.`UPSModel` AS `UPSModel`,
+    `computerassets`.`UPSSerial` AS `UPSSerial`,
+    `computerassets`.`CreatedBy` AS `CreatedBy`,
+    `computerassets`.`CreatedAt` AS `CreatedAt`
+FROM
+    `computerassets`
+WHERE
+    `computerassets`.`RetiredAt` IS NULL;
 
 --
 -- Final view structure for view `v_defectstrend`
 --
-
-/*!50001 DROP VIEW IF EXISTS `v_defectstrend`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_defectstrend` AS select `computerstatuslog`.`CheckDate` AS `d`,count(0) AS `defects` from `computerstatuslog` where (`computerstatuslog`.`Status` = 'Defective') group by `computerstatuslog`.`CheckDate` order by `computerstatuslog`.`CheckDate` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2025-08-06 22:41:29
+CREATE VIEW `v_defectstrend` AS
+SELECT
+    `computerstatuslog`.`CheckDate` AS `d`,
+    COUNT(0) AS `c`
+FROM
+    `computerstatuslog`
+WHERE
+    `computerstatuslog`.`StatusID` = 3
+GROUP BY
+    `computerstatuslog`.`CheckDate`;
