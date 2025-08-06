@@ -139,7 +139,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success:false, error:'Internal server error' });
 });
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`🚀 API + front-end on http://127.0.0.1:${PORT}`);
+// after—listen on 0.0.0.0 (all interfaces):
+const PORT = process.env.PORT || 4001;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API + front-end on http://0.0.0.0:${PORT}`);
 });
