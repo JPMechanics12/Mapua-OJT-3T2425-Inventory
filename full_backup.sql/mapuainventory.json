@@ -1,0 +1,43 @@
+{
+    "schema": "mapuainventory",
+    "includesDdl": true,
+    "includesViewsDdl": true,
+    "includesData": true,
+    "tables": [
+        "attendance_logs",
+        "fixes",
+        "borroweditems",
+        "dailyticketseq",
+        "computerassets",
+        "computers",
+        "computerstatuslog",
+        "items",
+        "room",
+        "students",
+        "users"
+    ],
+    "views": [
+        "v_currentassets",
+        "v_defectstrend"
+    ],
+    "events": [
+        "ev_retire_old_pcs"
+    ],
+    "functions": [],
+    "procedures": [],
+    "basenames": {
+        "attendance_logs": "mapuainventory@attendance_logs",
+        "fixes": "mapuainventory@fixes",
+        "borroweditems": "mapuainventory@borroweditems",
+        "dailyticketseq": "mapuainventory@dailyticketseq",
+        "computerassets": "mapuainventory@computerassets",
+        "computers": "mapuainventory@computers",
+        "computerstatuslog": "mapuainventory@computerstatuslog",
+        "items": "mapuainventory@items",
+        "room": "mapuainventory@room",
+        "students": "mapuainventory@students",
+        "users": "mapuainventory@users",
+        "v_currentassets": "mapuainventory@v_currentassets",
+        "v_defectstrend": "mapuainventory@v_defectstrend"
+    }
+}
