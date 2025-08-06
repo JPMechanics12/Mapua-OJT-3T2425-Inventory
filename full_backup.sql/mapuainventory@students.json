@@ -1,0 +1,34 @@
+{
+    "options": {
+        "schema": "mapuainventory",
+        "table": "students",
+        "columns": [
+            "StudentNo",
+            "rfidTag",
+            "studentId",
+            "FirstName",
+            "LastName",
+            "ContactNo",
+            "status",
+            "profilePicturePath",
+            "CreatedAt"
+        ],
+        "defaultCharacterSet": "utf8mb4",
+        "fieldsTerminatedBy": "\t",
+        "fieldsEnclosedBy": "",
+        "fieldsOptionallyEnclosed": false,
+        "fieldsEscapedBy": "\\",
+        "linesTerminatedBy": "\n"
+    },
+    "triggers": [],
+    "includesData": true,
+    "includesDdl": true,
+    "extension": "tsv.zst",
+    "chunking": true,
+    "compression": "zstd",
+    "primaryIndex": [
+        "StudentNo"
+    ],
+    "partitions": [],
+    "basenames": {}
+}

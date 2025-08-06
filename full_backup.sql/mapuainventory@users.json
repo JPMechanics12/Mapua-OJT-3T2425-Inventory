@@ -1,0 +1,33 @@
+{
+    "options": {
+        "schema": "mapuainventory",
+        "table": "users",
+        "columns": [
+            "UserID",
+            "FirstName",
+            "LastName",
+            "Email",
+            "ContactNo",
+            "PasswordHash",
+            "Role",
+            "CreatedAt"
+        ],
+        "defaultCharacterSet": "utf8mb4",
+        "fieldsTerminatedBy": "\t",
+        "fieldsEnclosedBy": "",
+        "fieldsOptionallyEnclosed": false,
+        "fieldsEscapedBy": "\\",
+        "linesTerminatedBy": "\n"
+    },
+    "triggers": [],
+    "includesData": true,
+    "includesDdl": true,
+    "extension": "tsv.zst",
+    "chunking": true,
+    "compression": "zstd",
+    "primaryIndex": [
+        "UserID"
+    ],
+    "partitions": [],
+    "basenames": {}
+}
