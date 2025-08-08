@@ -1,183 +1,341 @@
 /*───────────────────────────────────────────────────────────────
-   1. PC Grid Layout
+   0) BASE LAYOUT (scoped to main area so sidebar stays untouched)
+────────────────────────────────────────────────────────────────*/
+.main-content {
+  background: var(--color-bg);
+  min-height: 100vh;
+  padding: 8px 20px 40px;
+}
+.main-content > main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  max-width: 1200px;
+  margin: 0 auto 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header h2 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: .2px;
+  color: var(--color-text);
+}
+.header .username {
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #eee;
+}
+
+/*───────────────────────────────────────────────────────────────
+   1) ROOM SELECTOR (turn it into a sticky toolbar card)
+────────────────────────────────────────────────────────────────*/
+.room-selector {
+  position: sticky;
+  top: 8px;               /* sits below any app header if you have one */
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin: 8px auto 18px;
+  max-width: 1200px;
+
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(6px);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(17,24,39,.06);
+}
+.room-selector label {
+  font-weight: 700;
+  color: var(--color-text);
+}
+.room-selector select {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: var(--color-white);
+  color: var(--color-text);
+  font-weight: 600;
+  transition: border-color .2s, box-shadow .2s;
+}
+.room-selector select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(200,16,46,.15);
+}
+
+/* Buttons next to the selector */
+#bulkCheck {
+  padding: 8px 14px;
+  border: 1px solid var(--color-primary);
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .05s ease, box-shadow .25s ease, background .2s;
+}
+#bulkCheck:hover { background: var(--color-primary-dark); box-shadow: 0 2px 10px rgba(17,24,39,.08); }
+#bulkCheck:active { transform: translateY(1px); }
+#bulkCheck:focus-visible { outline: 2px solid var(--color-primary-dark); outline-offset: 2px; }
+
+.btn-add-room {
+  display: inline-flex;
+  align-items: center; gap: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: transparent;
+  border: 2px dashed var(--color-primary);
+  border-radius: 10px;
+  transition: all .2s ease;
+}
+.btn-add-room:hover {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary-dark);
+  box-shadow: 0 2px 10px rgba(17,24,39,.08);
+  transform: translateY(-1px);
+}
+
+/*───────────────────────────────────────────────────────────────
+   2) PC GRID (keeps your 4+spacer+4 and 3+spacer+5 configs)
 ────────────────────────────────────────────────────────────────*/
 .pc-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr) 5rem repeat(4, 1fr);
-  grid-auto-rows: 120px;
-  gap: 2rem;
+  grid-auto-rows: 124px;          /* a touch taller for nicer proportions */
+  gap: 18px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 .pc-grid.config-2 {
-  grid-template-columns: repeat(5, 1fr) 5rem repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr) 5rem repeat(5, 1fr);
 }
-@media (max-width: 768px) {
-  .pc-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+
+/* Responsive collapse */
+@media (max-width: 900px) {
+  .pc-grid, .pc-grid.config-2 {
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    grid-auto-rows: 120px;
+    gap: 14px;
+  }
+}
+@media (max-width: 640px) {
+  .pc-grid, .pc-grid.config-2 {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    grid-auto-rows: 110px;
+    gap: 12px;
   }
 }
 
 /*───────────────────────────────────────────────────────────────
-   2. PC Card Visuals
+   3) PC CARD (equal-sized, crisp, accessible)
 ────────────────────────────────────────────────────────────────*/
 .pc-card {
+  width: 100%; height: 100%;
   background: var(--color-white);
-  border: 2px solid transparent;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
   padding: 0.75rem;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+
+  box-shadow: 0 1px 0 rgba(17,24,39,.02);
+  transition: transform .12s ease, box-shadow .25s ease, border-color .2s;
 }
 .pc-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(17,24,39,.08);
 }
 .pc-card.selected {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(200,16,46,0.2);
+  box-shadow: 0 0 0 4px rgba(200,16,46,.16);
 }
-.pc-icon {
-  width: 36px; height: 36px;
-  transition: transform 0.2s;
+.pc-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
 }
-.pc-card:hover .pc-icon {
-  transform: scale(1.1);
-}
+
+/* icon + number badge */
+.pc-icon { font-size: 30px; width: 36px; height: 36px; }
 .pc-number {
-  margin-top: 0.35rem;
-  font-weight: 600;
+  position: absolute;
+  right: 10px; bottom: 10px;
+  font-weight: 800; font-size: 13px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: rgba(17,24,39,.06);
   color: var(--color-text);
 }
-.pc-card[data-status="Working"] {
-  background: #e5ffe5;
+
+/* subtle status dot (top-left) */
+.pc-card::before{
+  content:"";
+  position:absolute; top:10px; left:10px;
+  width:10px; height:10px; border-radius:50%;
+  background:#22c55e; /* ok by default */
 }
-.pc-card[data-status="Working"] .pc-number {
-  color: #238636;
-}
+
+/* status variants (keeps your colors, just refined) */
+.pc-card[data-status="Working"] { background:#F4FFF4; }
+.pc-card[data-status="Working"] .pc-number { background: rgba(34,197,94,.15); color:#166534; }
+
 .pc-card[data-status="Defective"] {
-  background: #ffe5e5;
+  background:#FFF5F5;
+  border-color:#ffd8d8;
 }
+.pc-card[data-status="Defective"]::before { background: var(--color-primary); }
 .pc-card[data-status="Defective"] .pc-number {
+  background: rgba(200,16,46,.15);
   color: var(--color-primary);
 }
 
 /*───────────────────────────────────────────────────────────────
-   3. Room Selector & Buttons
-────────────────────────────────────────────────────────────────*/
-.room-selector {
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.room-selector label { font-weight: bold; color: var(--color-primary); }
-.room-selector select {
-  padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;
-  background: var(--color-white); color: var(--color-text);
-  transition: border-color 0.2s;
-}
-.room-selector select:focus { outline: none; border-color: var(--color-primary); }
-
-#bulkCheck {
-  padding: 0.5rem 1rem; border: none; border-radius: 4px;
-  background: var(--color-primary); color: #fff;
-  font-size: 0.9rem; cursor: pointer;
-  transition: background 0.2s;
-}
-#bulkCheck:hover { background: var(--color-primary-dark); }
-
-.btn-add-room {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  padding: 0.45rem 0.75rem; font-size: 0.9rem; font-weight: 600;
-  color: var(--color-primary); background: transparent;
-  border: 2px dashed var(--color-primary); border-radius: 4px;
-  transition: all 0.2s ease;
-}
-.btn-add-room:hover {
-  background: var(--color-primary); color: var(--color-white);
-  border-color: var(--color-primary-dark); transform: translateY(-2px);
-}
-
-/*───────────────────────────────────────────────────────────────
-   4. Modal Overlay & Panel
+   4) MODALS (more modern panel, still your structure)
 ────────────────────────────────────────────────────────────────*/
 .modal {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
   display: flex; align-items: center; justify-content: center;
   z-index: 2000;
 }
 .modal.hidden { display: none; }
+
 .modal-content {
-  background: var(--color-white); border-radius: 8px;
-  padding: 1.5rem; width: 90%; max-width: 800px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-  animation: slideDown 0.3s ease; font-size: 1rem;
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 92%; max-width: 820px;
+  border: 1px solid #eee;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  animation: slideDown .24s ease;
 }
 @keyframes slideDown {
-  from { transform: translateY(-20px); opacity: 0; }
+  from { transform: translateY(-8px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
 }
 
-/*───────────────────────────────────────────────────────────────
-   5. Issue List (Defect Form)
-────────────────────────────────────────────────────────────────*/
+/* Issue list & other input (kept) */
 .issues-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(150px,1fr));
   gap: 1rem 2rem; margin-bottom: 1.5rem;
 }
-.issues-list label {
-  display: inline-flex; align-items: center; gap: 0.25rem;
-  font-size: 1rem; padding: 0.5rem 0.75rem;
-}
-.other-input-wrapper {
-  grid-column: 1 / -1; /* full width */
-}
+@media (max-width: 600px){ .issues-list { grid-template-columns: 1fr 1fr; } }
+.issues-list label { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .5rem; }
+.other-input-wrapper { grid-column: 1/-1; }
 .other-input {
-  width: 100%; padding: 0.4rem 0.6rem;
-  font-size: 1rem; border: 1px solid #ccc; border-radius: 4px;
+  width: 100%; padding: .55rem .7rem;
+  border: 1px solid #e5e7eb; border-radius: 10px;
 }
-.hidden { display: none !important; }
 
-/*───────────────────────────────────────────────────────────────
-   6. Modal Buttons
-────────────────────────────────────────────────────────────────*/
+/* Modal buttons (kept, refined) */
 .modal-buttons { text-align: right; }
 .modal-buttons button {
-  margin-left: 0.5rem; padding: 0.5rem 1rem;
-  border: none; border-radius: 4px; cursor: pointer;
-  font-size: 1rem;
+  margin-left: .5rem; padding: .6rem 1rem;
+  border-radius: 10px; border: 1px solid #e5e7eb;
+  font-weight: 700; cursor: pointer;
 }
-#defectCancel, #fixCancel, #bulkFixCancel {
-  background: #ddd; color: #333;
-}
-.btn-primary {
-  background: var(--color-primary); color: #fff;
-}
-.btn-primary:hover {
-  background: var(--color-primary-dark);
-}
+#defectCancel, #fixCancel, #bulkFixCancel { background:#f3f4f6; color:#374151; }
+.btn-primary { background: var(--color-primary); color:#fff; border-color: var(--color-primary); }
+.btn-primary:hover { background: var(--color-primary-dark); }
 
-/*───────────────────────────────────────────────────────────────
-   7. Fix Form
-────────────────────────────────────────────────────────────────*/
+/* Fix form (kept) */
 .fix-form .form-group { margin-bottom: 1rem; }
-.fix-form label {
-  display: block; font-size: 0.9rem; font-weight: 600;
-  margin-bottom: 0.35rem; color: var(--color-text);
+.fix-form label { display:block; font-size:.9rem; font-weight:700; margin-bottom:.35rem; color:var(--color-text); }
+.fix-form input[type="datetime-local"], .fix-form input[list] {
+  width:100%; padding:.55rem .75rem; border:1px solid #e5e7eb; border-radius:10px;
 }
-.fix-form input[type="datetime-local"],
-.fix-form input[list] {
-  width: 100%; padding: 0.55rem 0.75rem;
-  border: 1px solid #ccc; border-radius: 4px;
-  font-size: 0.95rem; transition: border-color 0.2s;
-}
-.fix-form input:focus { outline: none; border-color: var(--color-primary); }
+.fix-form input:focus { outline:none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(200,16,46,.15); }
 
-@media (max-width: 600px) {
-  .issues-list { grid-template-columns: 1fr 1fr; }
+/* Accessibility: reduce motion for sensitive users */
+@media (prefers-reduced-motion: reduce) {
+  .pc-card, #bulkCheck, .btn-add-room, .modal-content { transition: none !important; animation: none !important; }
 }
+/* Make items fill grid cells */
+.pc-grid {
+  align-items: stretch;           /* ensure cells fill row height */
+  justify-items: stretch;         /* ensure cells fill column width */
+  /* keep your existing template and gaps */
+}
+
+/* Stable, equal-size cards */
+.pc-card {
+  position: relative;             /* anchors badge/dot */
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;            /* smoother */
+}
+
+/* If you prefer a consistent shape instead of fixed row height,
+   you can let aspect-ratio control the height. */
+@supports (aspect-ratio: 1 / 1) {
+  .pc-grid { grid-auto-rows: auto; }   /* let items define row height */
+  .pc-card { height: auto; aspect-ratio: 5 / 7; } /* tweak ratio as you like */
+}
+
+/* Number badge & status dot behave correctly with position:relative */
+.pc-number {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: rgba(17,24,39,.06);
+}
+
+/* Tone down hover so it doesn't “jump” */
+.pc-card { transition: transform .12s ease, box-shadow .25s ease; will-change: transform; }
+.pc-card:hover { transform: translateY(-2px); }
+
+
+/* ==== FULL-WIDTH OVERRIDES (no HTML changes) ==== */
+
+/* Let the main area breathe edge-to-edge */
+.main-content { padding: 16px 24px 40px; }
+.main-content > main { max-width: none; margin: 0; }
+
+/* Header + toolbar should also span full width */
+.header { max-width: none; margin: 0 0 6px; padding: 0 4px; }
+.room-selector { max-width: none; margin: 8px 0 18px; }
+
+/* Grid: expand to full width, keep two blocks with a responsive aisle */
+.pc-grid {
+  max-width: none;
+  margin: 0;
+  /* scale gaps and row height with viewport so the space fills nicely */
+  gap: clamp(12px, 1.8vw, 28px);
+  grid-auto-rows: clamp(110px, 13vw, 160px);
+
+  /* Config 1: 4 left + aisle + 4 right — columns stretch with screen */
+  grid-template-columns:
+    repeat(4, minmax(80px, 1fr))
+    minmax(48px, 8vw)                 /* middle aisle scales with width */
+    repeat(4, minmax(80px, 1fr));
+}
+
+/* Config 2: 3 left + aisle + 5 right — also full width */
+.pc-grid.config-2 {
+  grid-template-columns:
+    repeat(3, minmax(160px, 1fr))
+    minmax(48px, 8vw)
+    repeat(5, minmax(160px, 1fr));
+}
+
+/* Ensure each card fills its cell (prevents “floating” pills) */
+.pc-grid { justify-items: stretch; align-items: stretch; }
+.pc-card { position: relative; width: 100%; height: 100%; }
