@@ -3,12 +3,8 @@ Install MYSQL
 In MySQL Shell
 \sql
 \connect root@127.0.0.1:3306 
-(this depends on the port you are using for MySQL)
-
-
-Now you will source, in MySQL shell
-\source "C:\xampp\htdocs\Mapua-OJT-3T2425-Inventory-main\MapuaInventory.sql"
-\source "C:\xampp\htdocs\Mapua-OJT-3T2425-Inventory-main\computer_assets_126rows_insert.sql"
+\source "C:\xampp\htdocs\OJT\MapuaInventory.sql"
+\source "C:\xampp\htdocs\OJT\computer_assets_126rows_insert.sql"
 
 
 backend:

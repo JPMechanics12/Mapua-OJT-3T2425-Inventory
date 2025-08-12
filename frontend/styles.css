@@ -1,542 +1,338 @@
-/* ─── Reset & Base ─────────────────────────────────────────── */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+
+/* ============================
+   Modern Dark Dashboard Theme
+   Inspired by sleek financial dashboards
+   ============================ */
+
+/* Reset */
 
 :root {
-  --color-primary: #C8102E;
-  --color-primary-dark: #A10B26;
-  --color-accent: #FFC72C;
-  --color-text: #333;
-  --color-bg: #F5F5F5;
-  --color-white: #fff;
-
-  /* NEW: Additional color variables for consistency */
-  --color-text-secondary: #777777; /* Medium Gray for secondary text */
-  --color-border: #E0E0E0;       /* Light Gray border */
-  --color-success: #2E7D32;      /* Green for success messages */
-  --color-error: #D32F2F;        /* Red for error messages */
-  --font-family-primary: Verdana, Tahoma, Geneva, sans-serif; /* Adjusted to use Verdana first, then sans-serif fallback */
+  /* Legacy variable aliases for existing JS */
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-text: var(--text);
+}
+.dark {
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-text: var(--text);
 }
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Light palette (default) */
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --sidebar: #111827;
+  --border: #e5e7eb;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --grid: rgba(0,0,0,0.06);
+  --primary: #6366F1;  /* indigo */
+  --primary-600: #4f46e5;
+  --accent: #22d3ee;   /* cyan */
+  --success: #10b981;  /* green */
+  --danger: #ef4444;   /* red */
+  --warning: #f59e0b;  /* amber */
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(2, 6, 23, 0.07);
+  --font: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Dark palette (activate by adding .dark on <html>) */
+.dark {
+  --bg: #0b1220;
+  --surface: #0f172a;
+  --card: #111827;       /* very dark slate */
+  --sidebar: #0b1220;
+  --border: #1f2937;
+  --text: #e5e7eb;
+  --text-muted: #9ca3af;
+  --grid: rgba(255,255,255,0.06);
+  --primary: #8b5cf6;    /* violet */
+  --primary-600: #7c3aed;
+  --accent: #22d3ee;     /* cyan */
+  --success: #34d399;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+html, body { height: 100%; }
 body {
   display: flex;
-  font-family: var(--font-family-primary); /* Use the new variable */
-  background: var(--color-bg);
-  color: var(--color-text);
-  min-height: 100vh;
-  /* Removed duplicate font-family and font-size/line-height here to rely on the new variable for primary font */
-  font-size: 14px; /* Keep consistent with your base font size */
-  line-height: 1.45; /* Keep consistent with your base line height */
+  background: radial-gradient(1000px 500px at 90% -10%, rgba(99,102,241,0.15), transparent 60%),
+              radial-gradient(800px 400px at -10% 110%, rgba(34,211,238,0.12), transparent 60%),
+              var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.45;
 }
 
-/* ─── Sidebar ─────────────────────────────────────────────── */
+/* Sidebar */
 .sidebar {
+  width: 264px;
+  min-height: 100vh;
   position: sticky;
   top: 0;
-  width: 240px;
-  height: 100vh;
-  background: #1d181c;
-  color: #fff;
+  background:
+    linear-gradient(180deg, rgba(17,24,39,0.9), rgba(17,24,39,0.85)),
+    var(--sidebar);
+  border-right: 1px solid var(--border);
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  gap: 1.5rem;
+  gap: 18px;
 }
 
-/* Brand / Logo */
-.sidebar .brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-}
-
-.sidebar .logo {
-  /* --- FIX START --- */
-  /* Increase the size to make the logo visible. Adjust these values as needed */
-  /* The original image 'image_fd5221.png' suggests a wider logo that includes text */
-  width: 180px; /* Example: Increased width */
-  height: auto; /* Maintain aspect ratio */
-  /* If the logo image itself *only* contains the Mapua 'M' icon, and 'Mapúa IMS' is the h1,
-     then you might want a smaller square size for the logo image itself, e.g., 50px */
-  /* If 'image_fd5221.png' is your target appearance, 150px or more might be needed for width */
-  /* --- FIX END --- */
-}
-
-.sidebar .brand h1 {
-  /* If the H1 is for "Mapúa IMS" *next to* the logo image (like in image_fd5221.png), */
-  /* then remove or adjust this h1 if the logo image itself contains "Mapúa IMS". */
-  /* If the logo image is just the 'M' icon, then this h1 is correct. */
-  font-size: 1.3rem;
-  color: #fff;
-  font-weight: 700;
-}
-
-/* Nav links */
-.sidebar nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar nav li {
-  margin-bottom: 0.5rem;
-}
-
-.sidebar nav li a {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 1rem;
-  background: transparent;
-  color: #ccc;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  font-family: Verdana;
-  transition: background 0.2s, color 0.2s;
-}
-
-.sidebar nav li a:hover {
-  background: #2e2a33;
-  color: #fff;
-}
-
-.sidebar nav li.active a {
-  background: var(--color-primary); /* Use variable for consistency */
-  color: var(--color-white); /* Use variable for consistency */
-}
-
-/* Icon spacing */
-.sidebar nav li a .icon {
-  font-size: 1.2rem;
-}
-
-/* Footer buttons */
-.sidebar-footer {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid #2e2a33;
-}
-
-.sidebar-footer .export-btn,
-.sidebar-footer #signout-btn {
-  padding: 0.6rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.sidebar-footer .export-btn {
-  background: #38A169;
-  color: #fff;
-}
-
-.sidebar-footer .export-btn:hover {
-  background: #48BB78;
-}
-
-.sidebar-footer #signout-btn {
-  background: transparent;
-  color: #ccc;
-}
-
-.sidebar-footer #signout-btn:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-/* ─── Sidebar Profile ─────────────────────────────────────── */
 .sidebar-profile {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  background: #2e3748;
-  border-radius: 0.75rem;
+  gap: 12px;
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(99,102,241,0.12), rgba(34,211,238,0.08));
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
-.sidebar-profile .avatar {
-  width: 56px;
-  height: 56px;
+.sidebar .avatar {
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: var(--color-primary); /* Use variable for consistency */
-  color: var(--color-white); /* Use variable for consistency */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-family: Verdana;
+  display: grid;
+  place-items: center;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
 }
 
-.sidebar-profile .user-name {
-  color: #E0E6ED;
-  font-size: 0.95rem;
+.sidebar .user-name {
   font-weight: 600;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.95rem;
 }
 
-/* ─── Main Content ────────────────────────────────────────── */
+.sidebar-nav ul { list-style: none; }
+.sidebar-nav li { margin-bottom: 6px; }
+.sidebar-nav a {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: 180ms ease;
+}
+.sidebar-nav a:hover {
+  background: rgba(139,92,246,0.15);
+  color: var(--text);
+}
+.sidebar-nav .active a{
+  background: linear-gradient(135deg, rgba(99,102,241,0.22), rgba(34,211,238,0.18));
+  color: white;
+  border: 1px solid rgba(139,92,246,0.35);
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+}
+.sidebar-footer button {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: 180ms ease;
+}
+.sidebar-footer .export-btn {
+  background: linear-gradient(135deg,var(--primary), var(--accent));
+  color: #fff;
+  border: none;
+}
+.sidebar-footer button:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+
+/* Main content */
 .main-content {
   flex: 1;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  overflow-y: auto;
+  gap: 18px;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-/* ─── Toolbar ─────────────────────────────────────────────── */
+/* Toolbar / Header */
 .toolbar {
-  position: relative; /* added for filter dropdown positioning */
-  display: flex;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+              var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  background: var(--color-white);
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 14px;
 }
 
-.toolbar-left     { display: flex; align-items: center; gap: .5rem; }
-.toolbar-right .avatar {
-  width: 40px;
-  height: 40px;
-  background: var(--color-primary);
-  color: var(--color-white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1rem;
-}
-/* ─── Toolbar center (search) ───────────────────────────────── */
-.toolbar-center {
-  flex: 1;              /* fill available space */
-  display: flex;              /* lay children out in a row */
-  align-items: center;        /* center vertically */
-  gap: 0.5rem;              /* small gap if you ever put anything else here */
+.toolbar h2 { font-size: 1.15rem; font-weight: 700; }
+.badge {
+  margin-left: 8px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 700;
+  font-size: 0.75rem;
 }
 
-/* ─── Toolbar right (filter + avatar) ───────────────────── */
+.toolbar-center .search-input {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  padding: 10px 14px;
+  outline: none;
+}
 .toolbar-right {
   display: flex;
   align-items: center;
-  gap: 0.5rem;              /* space between Filter and the avatar */
+  gap: 8px;
 }
-
-/* Optional: remove that right‐absolute pincushion and instead drop the dropdown below the Filter button */
-.filter-panel {
-  right: 0;                 /* align under the Filter button instead of hard‐coding 4.5rem */
-}
-
-/* version badge */
-.badge {
-  background: var(--color-accent);
-  color: var(--color-white);
-  padding: .25rem .5rem;
-  font-size: .85rem;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-/* small badge for notifications */
-.badge-sm {
-  background: var(--color-primary);
-  color: var(--color-white);
-  font-size: .65rem;
-  padding: 0 .25rem;
-  border-radius: 999px;
-  margin-left: .25rem;
-  vertical-align: top;
-}
-
-/* search input as pill */
-.search-input {
-  flex: 1;
-  padding: .5rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 999px;
-  outline: none;
-}
-
-.search-wrap {
-  display: flex;
-  gap: .5rem;
-  width: 100%;
-}
-
-/* ─── Filter‐panel dropdown ───────────────────────────────── */
-.filter-btn {
-  margin-right: .5rem;
-  padding: .5rem 1rem;
-  background: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  border-radius: 4px;
+.filter-btn, .theme-toggle-btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 8px 12px;
   cursor: pointer;
+  transition: 180ms ease;
 }
-.filter-btn:hover {
-  background: var(--color-primary-dark);
-}
+.filter-btn:hover, .theme-toggle-btn:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
 
+/* Dropdown */
 .filter-panel {
   position: absolute;
-  top: 100%;
-  right: 4.5rem; /* sits left of avatar */
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: .75rem 1rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  z-index: 50;
+  top: calc(100% + 8px);
+  right: 20px;
+  z-index: 40;
+  width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 14px;
 }
-.filter-panel.hidden {
-  display: none;
-}
-.filter-panel ul {
-  list-style: none;
-  margin: .5rem 0 0;
-  padding: 0;
-  max-height: 240px;
-  overflow-y: auto;
-}
+.filter-panel.hidden { display: none; }
+.filter-panel strong { display:block; margin-bottom: 8px; }
+.filter-panel ul { list-style:none; display:grid; gap:8px; max-height: 260px; overflow-y:auto; }
+.filter-panel label { color: var(--text); }
 
-.filter-panel li {
-  margin-bottom: .25rem;
-}
-
-.filter-panel label {
-  font-size: .95rem;
-  cursor: pointer;
-}
-
-/* ─── Filters (month picker) ─────────────────────────────── */
+/* Month picker */
 .filters {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: .5rem;
-  margin-bottom: 1.5rem;
+  gap: 10px;
 }
-
-.picker-label {
-  cursor: pointer;
-  font-weight: bold;
-  color: var(--color-primary);
-}
-
+.picker-label { color: var(--text-muted); font-weight: 600; }
 #selected-month-display {
-  cursor: pointer;
-  font-weight: bold;
-  color: var(--color-primary);
+  cursor: pointer; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+  background: rgba(139,92,246,0.18); color: #fff; border: 1px solid rgba(139,92,246,0.35);
 }
-
 .month-year-picker {
-  display: none;
   position: absolute;
-  top: 1.8rem;
-  left: 6.5rem;
-  z-index: 20;
+  margin-top: 6px;
+  width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  display: none;
 }
+#month-picker-toggle:checked + #selected-month-display + .month-year-picker { display: block; }
+.picker-header { display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid var(--border); }
+.picker-title { font-weight:700; cursor:pointer; }
+.picker-grid { display:grid; grid-template-columns: repeat(4,1fr); gap:6px; padding:10px; }
+.grid-item { text-align:center; padding:8px; border-radius:10px; cursor:pointer; border:1px solid transparent; }
+.grid-item:hover { border-color: var(--border); }
+.grid-item.selected { background: linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; }
+.grid-item.disabled { opacity:.5; cursor:not-allowed; }
 
-#month-picker-toggle:checked + #selected-month-display + .month-year-picker {
-  display: block;
-}
-
-/* picker panel */
-.month-year-picker {
-  width: 260px;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  user-select: none;
-}
-
-.picker-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: .5rem;
-  background: #f7f7f7;
-  border-bottom: 1px solid #ddd;
-}
-
-.picker-header button {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.picker-title {
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.picker-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: .25rem;
-  padding: .5rem;
-}
-
-.grid-item {
-  padding: .5rem;
-  text-align: center;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.grid-item.selected {
-  background: var(--color-primary);
-  color: #fff;
-}
-
-.grid-item.disabled {
-  background: #f0f0f0;
-  color: #aaa;
-  cursor: not-allowed;
-}
-
-.grid-item.disabled:hover {
-  background: #f0f0f0;
-}
-
-/* ─── KPI cards ───────────────────────────────────────────── */
+/* KPI Cards */
 .cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
 }
-
 .card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 6px;
 }
+.card h3 { color: var(--text-muted); font-weight: 600; font-size: 0.95rem; }
+.card p { font-weight: 800; font-size: 2rem; letter-spacing: -0.02em; }
+.card .delta { font-size: 0.85rem; font-weight: 700; }
+.card .delta.up { color: var(--success); }
+.card .delta.down { color: var(--danger); }
 
-.card h3 {
-  font-size: 1rem;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  margin-bottom: .5rem;
-  color: var(--color-primary);
-}
-
-.card p {
-  font-size: 1.8rem;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-/* ─── Charts grid ─────────────────────────────────────────── */
+/* Charts grid */
 .charts {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
-
 .chart-card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 1rem .5rem .5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 12px 12px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  gap: 10px;
 }
+.chart-card h4 { font-weight: 700; font-size: 1rem; color: var(--text); }
+.chart-card canvas { width: 100% !important; height: 300px !important; }
 
-.chart-card h4 {
-  margin: 0 0 .7rem;
-  color: var(--color-primary);
-  font-size: 1.15rem;
-  font-weight: 600;
-}
-
-.chart-card canvas {
-  width: 100% !important;
-  aspect-ratio: 4/3;
-  height: auto !important;
-  max-height: 280px;
-}
-
-/* ─── Floating clock ─────────────────────────────────────── */
+/* Floating clock */
 .floating-time {
   position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  background: #fff;
-  color: var(--color-text);
-  padding: .5rem .75rem;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  font-family: Verdana;
-  font-size: .95rem;
-  text-align: center;
-  line-height: 1.2;
-  z-index: 1000;
+  right: 20px; bottom: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 }
+.floating-time .time { font-weight: 800; font-size: 1.05rem; }
 
-.floating-time .time {
-  display: block;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
+/* Responsive */
+@media (max-width: 1200px) { .cards { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 860px)  { .charts{ grid-template-columns: 1fr; } .sidebar{ position: fixed; left: -270px; transition: 200ms; } .sidebar.open{ left: 0; } body{ overflow-x:hidden; } }
+@media (max-width: 620px)  { .cards { grid-template-columns: 1fr; } }
 
-.floating-time .date {
-  display: block;
-  font-family: Verdana;
-  font-size: .85rem;
-  margin-top: .25rem;
-  color: var(--color-primary-dark);
-}
 
-/* ─── Responsive tweaks ───────────────────────────────────── */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: -240px;
-    transition: left .3s;
-  }
-  .sidebar.open {
-    left: 0;
-  }
-  .main-content {
-    margin-left: 0;
-  }
-  .charts {
-    grid-template-columns: 1fr;
-  }
-  .cards {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (min-width: 1024px) {
-  .charts {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
+/* ===== Overrides: fixed sidebar + profile label under avatar ===== */
+.sidebar{position:fixed!important;top:0;left:0;height:100vh;overflow-y:auto;z-index:60;}
+.main-content{margin:0;margin-left:264px!important;}
+.sidebar-profile{display:flex;flex-direction:column;align-items:center;text-align:center;}
+.sidebar .avatar{width:56px;height:56px;display:grid;place-items:center;font-weight:700;}
+.sidebar .user-name{margin-top:8px;opacity:.95;font-weight:600;font-size:.95rem;color:#fff;}
+/* adaptive user-name color */
+:root .sidebar .user-name{ color:#fff; } /* sidebar bg is dark in both themes */
+@media (max-width:860px){.main-content{margin-left:0!important;}}

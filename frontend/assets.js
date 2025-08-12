@@ -293,3 +293,20 @@ roomSel.onchange = loadGrid;
     await loadGrid();
   }
 })();
+
+
+/* assets theme hook */
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.theme-toggle-btn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const dark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      btn.textContent = dark ? '☀️' : '🌙';
+    });
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+      btn.textContent = '☀️';
+    }
+  }
+});

@@ -653,3 +653,30 @@ function updateFloatingTime() {
 }
 setInterval(updateFloatingTime, 1000);
 updateFloatingTime();
+
+/* Modern theme hook for RFID page */
+document.addEventListener('DOMContentLoaded', () => {
+  // Avatar initials + name (reuse session user if available)
+  try {
+    const user = JSON.parse(sessionStorage.getItem('user') || '{"name":"Administrator"}');
+    document.querySelectorAll('.sidebar-profile .avatar').forEach(el => {
+      el.textContent = user.name.split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase();
+    });
+    const nm = document.querySelector('.sidebar-profile .user-name');
+    if (nm) nm.textContent = `Hi, ${user.name.split(' ')[0]}!`;
+  } catch {}
+
+  // Theme toggle
+  const toggleBtn = document.querySelector('.theme-toggle-btn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      toggleBtn.textContent = isDark ? '☀️' : '🌙';
+    });
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+      toggleBtn.textContent = '☀️';
+    }
+  }
+});

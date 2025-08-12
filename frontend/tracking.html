@@ -1,100 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Item Tracking – Mapua Inventory</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Item Tracking – Mapua Inventory</title>
 
-    <style>
-        :root {
-            --color-primary: #C8102E;
-            --color-primary-dark: #A10B26;
-            --color-accent: #FFC72C;
-            --color-text: #333333;
-            --color-bg: #F5F5F5;
-            --color-white: #FFFFFF;
-        }
-        
-        
-    </style>
+  <!-- Fonts + Base styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="tracking.css" />
 
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="tracking.css" />
-    <script defer src="tracking.js"></script>
+  <script defer src="tracking.js"></script>
 </head>
 <body>
-    <div id="floating-time" class="floating-time"></div>
+  <!-- Floating clock -->
+  <div id="floating-time" class="floating-time">--:--:--</div>
 
-    <aside class="sidebar">
-        <div class="sidebar-profile">
-            <div class="avatar"></div>
-            <div class="user-name"></div>
-        </div>
-        <nav class="sidebar-nav">
-            <ul>
-                <li><a href="dashboard.html"><span class="icon">📊</span><span class="label">Dashboard</span></a></li>
-                <li><a href="rfid.html"><span class="icon">🏷️</span><span class="label">RFID</span></a></li> 
-                <li class="active"><a href="tracking.html"><span class="icon">📦</span><span class="label">Item Tracking</span></a></li>
-                <li><a href="rooms.html"><span class="icon">🏠</span><span class="label">Rooms</span></a></li>
-                <li><a href="assets.html"><span class="icon">💻</span><span class="label">Assets</span></a></li>
-                <li><a href="reports.html"><span class="icon">📑</span><span class="label">Reports</span></a></li>
-                <li><a href="settings.html"><span class="icon">⚙️</span><span class="label">Settings</span></a></li>
-                <li>
-                    <a href="users.html">
-                        <span class="icon">🧑</span>
-                        <span class="label">Users</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <div class="sidebar-footer">
-            <button id="signout-btn">🔒 Sign Out</button>
-        </div>
-    </aside>
-
-    <div class="main-content">
-        <header class="header">
-            <h2>Item Tracking</h2>
-            <div class="user-menu"><span class="username">Admin</span></div>
-        </header>
-
-        <main>
-            <section class="item-tracking-container">
-                <div class="headcount-section">
-                    <h3>Item Headcount</h3>
-                    <div id="item-headcount" class="item-grid">
-                        </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="borrow-form">
-                        <h3>Borrow an Item</h3>
-                        <input type="text" id="studentIdInput" placeholder="Enter Student ID">
-                        <select id="itemSelect">
-                            <option value="">Select an Item</option>
-                        </select>
-                        <input type="number" id="borrowQuantityInput" placeholder="Quantity" value="1" min="1">
-                        <button id="borrowButton" class="btn-primary">Borrow Item</button>
-                        <div id="message-borrow" class="message"></div>
-                    </div>
-<div class="return-form">
-    <h3>Return an Item</h3>
-    <input type="text" id="returnStudentIdInput" placeholder="Enter Student ID (RFID)" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-    <div id="borrowed-items-container" class="mt-4">
-        <p>Scan a student's RFID to see their borrowed items.</p>
+  <!-- Sidebar (fixed via global styles.css) -->
+  <aside class="sidebar">
+    <div class="sidebar-profile">
+      <div class="avatar"></div>
+      <div class="user-name"></div>
     </div>
-    <div id="message-return"></div>
-</div>
-
-                <div class="history-section">
-                    <h3>Student History</h3>
-                    <input type="text" id="historyStudentIdInput" placeholder="Enter Student ID">
-                    <button id="fetchHistoryButton" class="btn-primary">Fetch History</button>
-                    <div id="student-history-results" class="history-log">
-                        </div>
-                </div>
-            </section>
-        </main>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="dashboard.html"><span class="icon">📊</span><span class="label">Dashboard</span></a></li>
+        <li><a href="rfid.html"><span class="icon">🏷️</span><span class="label">RFID</span></a></li>
+        <li class="active"><a href="tracking.html"><span class="icon">📦</span><span class="label">Item Tracking</span></a></li>
+        <li><a href="rooms.html"><span class="icon">🏠</span><span class="label">Rooms</span></a></li>
+        <li><a href="assets.html"><span class="icon">💻</span><span class="label">Assets</span></a></li>
+        <li><a href="reports.html"><span class="icon">📑</span><span class="label">Reports</span></a></li>
+        <li><a href="settings.html"><span class="icon">⚙️</span><span class="label">Settings</span></a></li>
+        <li><a href="users.html"><span class="icon">🧑</span><span class="label">Users</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="signout-btn">🔒 Sign Out</button>
     </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <header class="header toolbar">
+      <div class="toolbar-left">
+        <h2>Item Tracking</h2>
+      </div>
+      <div class="toolbar-center"></div>
+      <div class="toolbar-right">
+        <button class="theme-toggle-btn" title="Toggle theme">🌙</button>
+        <div class="avatar">AD</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="item-tracking-container">
+        <!-- Headcount -->
+        <div class="headcount-section">
+          <h3>Item Headcount</h3>
+          <div id="item-headcount" class="item-grid"></div>
+        </div>
+
+        <!-- Borrow / Return -->
+        <div class="form-section">
+          <div class="borrow-form">
+            <h3>Borrow an Item</h3>
+            <input type="text" id="studentIdInput" placeholder="Enter Student ID" />
+            <select id="itemSelect">
+              <option value="">Select an Item</option>
+            </select>
+            <input type="number" id="borrowQuantityInput" placeholder="Quantity" value="1" min="1" />
+            <button id="borrowButton" class="btn-primary">Borrow Item</button>
+            <div id="message-borrow" class="message"></div>
+          </div>
+
+          <div class="return-form">
+            <h3>Return an Item</h3>
+            <input type="text" id="returnStudentIdInput" placeholder="Enter Student ID (RFID)" />
+            <div id="borrowed-items-container" class="mt-4">
+              <p>Scan a student's RFID to see their borrowed items.</p>
+            </div>
+            <div id="message-return" class="message"></div>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div class="history-section">
+          <h3>Student History</h3>
+          <div class="history-actions">
+            <input type="text" id="historyStudentIdInput" placeholder="Enter Student ID" />
+            <button id="fetchHistoryButton" class="btn-primary">Fetch History</button>
+          </div>
+          <div id="student-history-results" class="history-log"></div>
+        </div>
+      </section>
+    </main>
+  </div>
 </body>
 </html>

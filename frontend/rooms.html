@@ -5,19 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rooms Monitor – Mapua Inventory</title>
 
-  <!-- Global palette vars -->
-  <style>
-    :root {
-      --color-primary: #C8102E;
-      --color-primary-dark: #A10B26;
-      --color-accent: #FFC72C;
-      --color-text: #333333;
-      --color-bg: #F5F5F5;
-      --color-white: #FFFFFF;
-    }
-  </style>
-
-  <!-- Core styles and page overrides -->
+  <!-- Fonts + global styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="rooms.css" />
   <script defer src="rooms.js"></script>
@@ -33,49 +24,56 @@
       <div class="user-name"></div>
     </div>
     <nav class="sidebar-nav">
-  <ul>
-    <li><a href="dashboard.html"><span class="icon">📊</span><span class="label">Dashboard</span></a></li>
-    <li><a href="rfid.html"><span class="icon">🏷️</span><span class="label">RFID</span></a></li> 
-    <li><a href="tracking.html"><span class="icon">📦</span><span class="label">Item Tracking</span></a></li>
-    <li class="active"><a href="rooms.html"><span class="icon">🏠</span><span class="label">Rooms</span></a></li>
-    <li><a href="assets.html"><span class="icon">💻</span><span class="label">Assets</span></a></li>
-    <li><a href="reports.html"><span class="icon">📑</span><span class="label">Reports</span></a></li>
-    <li><a href="settings.html"><span class="icon">⚙️</span><span class="label">Settings</span></a></li>
-    <li>
-      <a href="users.html">
-        <span class="icon">🧑</span>
-        <span class="label">Users</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+      <ul>
+        <li><a href="dashboard.html"><span class="icon">📊</span><span class="label">Dashboard</span></a></li>
+        <li><a href="rfid.html"><span class="icon">🏷️</span><span class="label">RFID</span></a></li>
+        <li><a href="tracking.html"><span class="icon">📦</span><span class="label">Item Tracking</span></a></li>
+        <li class="active"><a href="rooms.html"><span class="icon">🏠</span><span class="label">Rooms</span></a></li>
+        <li><a href="assets.html"><span class="icon">💻</span><span class="label">Assets</span></a></li>
+        <li><a href="reports.html"><span class="icon">📑</span><span class="label">Reports</span></a></li>
+        <li><a href="settings.html"><span class="icon">⚙️</span><span class="label">Settings</span></a></li>
+        <li><a href="users.html"><span class="icon">🧑</span><span class="label">Users</span></a></li>
+      </ul>
+    </nav>
     <div class="sidebar-footer">
-
       <button id="signout-btn">🔒 Sign Out</button>
     </div>
   </aside>
 
-  <!-- Main content -->
+  <!-- Main -->
   <div class="main-content">
-    <header class="header">
+    <!-- Header toolbar -->
+    <header class="header toolbar">
       <h2>Rooms Monitor</h2>
       <div class="user-menu"><span class="username">Admin</span></div>
+      <button class="theme-toggle-btn" title="Toggle theme">🌙</button>
+      <div class="avatar">AD</div>
     </header>
 
     <main>
-      <!-- Room selector + actions -->
-      <section class="room-selector">
-        <label for="room-select">Select Room:</label>
-        <select id="room-select">
-          <option value="">-- Choose a room --</option>
-        </select>
-        <button id="bulkCheck" class="btn-primary">Check All</button>
-        <button id="addRoomBtn" class="btn-add-room">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon-plus" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-            <path fill="currentColor" d="M12 5a1 1 0 0 1 1 1v5h5a1 1 0 1 1 0 2h-5v5a1 1 0 1 1-2 0v-5H6a1 1 0 1 1 0-2h5V6a1 1 0 0 1 1-1z"/>
-          </svg>
-          <span>Add Room</span>
-        </button>
+      <!-- Redesigned room toolbar -->
+      <section class="room-toolbar">
+        <div class="rt-left">
+          <h3 class="rt-title">Room</h3>
+
+          <label class="rt-select">
+            <select id="room-select" aria-label="Select room">
+              <option value="">— Choose a room —</option>
+            </select>
+            <span class="chev">▾</span>
+          </label>
+
+          <button id="bulkCheck" class="rt-btn rt-primary">Check All</button>
+
+          <button id="addRoomBtn" class="rt-btn rt-dashed">
+            <span class="plus">+</span> Add Room
+          </button>
+        </div>
+
+        <ul class="rt-legend">
+          <li><span class="dot ok"></span> Working</li>
+          <li><span class="dot bad"></span> Defective</li>
+        </ul>
       </section>
 
       <!-- PC grid -->
@@ -97,7 +95,7 @@
           <label><input type="checkbox" name="issues" value="CPU"> CPU</label>
           <label><input type="checkbox" name="issues" value="GPU"> GPU</label>
           <label><input type="checkbox" name="issues" value="Network"> Network</label>
-          <!-- “Other” checkbox -->
+
           <label>
             <input type="checkbox" id="issue-other-checkbox" name="issues" value="Other">
             Other
@@ -149,23 +147,11 @@
       <form id="bulkFixForm" class="fix-form">
         <div class="form-group">
           <label for="bulkFixDateTime">Fixed On</label>
-          <input 
-            type="datetime-local" 
-            id="bulkFixDateTime" 
-            name="fixedOn" 
-            required
-          />
+          <input type="datetime-local" id="bulkFixDateTime" name="fixedOn" required/>
         </div>
         <div class="form-group">
           <label for="bulkFixerInput">Fixed By</label>
-          <input 
-            type="text" 
-            id="bulkFixerInput" 
-            name="fixedBy" 
-            list="fixerList" 
-            placeholder="Type to search…" 
-            required 
-          />
+          <input type="text" id="bulkFixerInput" name="fixedBy" list="fixerList" placeholder="Type to search…" required/>
         </div>
         <div class="modal-buttons">
           <button type="button" id="bulkFixCancel" class="btn-light">Cancel</button>

@@ -6,19 +6,11 @@
   <title>Settings – Mapúa Inventory</title>
 
   <!-- Palette variables -->
-  <style>
-    :root {
-      --color-primary: #C8102E;      /* Mapúan Red */
-      --color-primary-dark: #A10B26; /* Dark Red */
-      --color-accent: #FFC72C;       /* Gold Accent */
-      --color-text: #333333;         /* Charcoal */
-      --color-bg: #F5F5F5;           /* Light Gray */
-      --color-white: #FFFFFF;        /* White */
-    }
-  </style>
-
   <!-- Global CSS -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
   <!-- Page‐specific CSS -->
   <link rel="stylesheet" href="settings.css" />
   <!-- Page‐specific JS -->
@@ -65,11 +57,11 @@
 
 
   <div class="main-content">
-    <header class="header">
+    <header class="header toolbar">
       <h2>Profile Settings</h2>
-      <div class="user-menu">
-        <span class="username">Admin</span>
-      </div>
+      <div class="user-menu"><span class="username">Admin</span></div>
+      <button class="theme-toggle-btn" title="Toggle theme">🌙</button>
+      <div class="avatar">AD</div>
     </header>
 
     <main>

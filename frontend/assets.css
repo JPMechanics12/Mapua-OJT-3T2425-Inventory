@@ -1,3 +1,22 @@
+
+/* === Palette bridge: align assets.css with global theme === */
+:root {
+  --color-bg: var(--bg);
+  --color-white: var(--card);
+  --color-text: var(--text);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-600);
+  --color-accent: var(--accent);
+}
+.dark {
+  --color-bg: var(--bg);
+  --color-white: var(--card);
+  --color-text: var(--text);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-600);
+  --color-accent: var(--accent);
+}
+
 /* ───────────────────────────────────────── Assets Monitor Styles ───────────────────────────────────────── */
 
 /* 1️⃣ Room selector */
@@ -146,7 +165,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 240px;
+  width: 264px;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -175,7 +194,7 @@
   color: #fff;
 }
 .main-content {
-  margin-left: 240px;
+  margin-left: 264px;
 }
 
 /* 8️⃣ Edit-PC modal refinements */
@@ -234,4 +253,40 @@
   color: #666;
   font-style: normal;
   font-weight: 500;
+}
+
+
+/* === Sidebar & header overrides (match RFID/Rooms) === */
+.sidebar{
+  position: fixed !important;
+  top:0; left:0;
+  width: 264px;
+  height:100vh;
+  overflow-y:auto;
+  z-index:60;
+}
+.main-content{ margin-left:264px !important; }
+
+.sidebar-profile{ display:flex; flex-direction:column; align-items:center; text-align:center; }
+.sidebar .avatar{ width:56px; height:56px; display:grid; place-items:center; font-weight:700; }
+.sidebar .user-name{ margin-top:8px; color:#fff; opacity:.95; font-weight:600; font-size:.95rem; }
+
+/* Room selector styled as card */
+.room-selector{
+  position: sticky; top: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
+  display: flex; align-items:center; gap: 12px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 860px){
+  .main-content{ margin-left:0 !important; }
+}
+.sidebar {
+  background-color: #111827 !important;
+  background: linear-gradient(180deg, rgba(17,24,39,0.9), rgba(17,24,39,0.85)) !important;
 }

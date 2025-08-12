@@ -151,6 +151,7 @@ class MonthYearPicker {
 
 /* ─── DOM READY & APP BOOTSTRAP ───────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+  initChartTheme();
   // — Auth guard —
   const user = JSON.parse(sessionStorage.getItem('user'));
   if (!user) {
@@ -234,12 +235,21 @@ document.addEventListener('DOMContentLoaded', () => {
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
       const dark = document.documentElement.classList.toggle('dark');
+      initChartTheme();
+      // re-render charts for new palette
+      const month = document.getElementById('month-filter')?.value || new Date().toISOString().slice(0,7);
+      refreshDashboard(month);
       localStorage.setItem('theme', dark?'dark':'light');
       themeToggle.textContent = dark?'☀️':'🌙';
     });
     if (localStorage.getItem('theme')==='dark') {
       document.documentElement.classList.add('dark');
       themeToggle.textContent = '☀️';
+      /* first-load dark apply */
+      initChartTheme();
+      const initMonth = document.getElementById('month-filter')?.value || new Date().toISOString().slice(0,7);
+      // defer a tick so canvases exist
+      setTimeout(() => refreshDashboard(initMonth), 0);
     }
   }
 
@@ -703,6 +713,32 @@ async function drawUptimeChart(ym) {
 
 
 /* ─── Utility to read CSS vars ───────────────────────────── */
+
+function initChartTheme() {
+  const text = getCSSVar('--color-text') || '#e5e7eb';
+  const grid = getComputedStyle(document.documentElement).getPropertyValue('--grid')?.trim() || 'rgba(0,0,0,0.06)';
+
+  // Typography & base
+  Chart.defaults.font.family = "'Inter','Helvetica Neue','Arial',sans-serif";
+  Chart.defaults.font.size   = 12;
+  Chart.defaults.color       = text;
+  Chart.defaults.layout.padding = 16;
+
+  // Grid & axes
+  Chart.defaults.scale.grid.color = grid;
+  Chart.defaults.scale.grid.lineWidth = 1;
+  Chart.defaults.scale.ticks.color = text;
+  Chart.defaults.scale.ticks.backdropColor = 'transparent';
+
+  // Legend & tooltip
+  Chart.defaults.plugins.legend.position = 'bottom';
+  Chart.defaults.plugins.legend.labels.boxWidth = 12;
+  Chart.defaults.plugins.legend.labels.color = text;
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.titleFont = { weight: '700', size: 13 };
+  Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+}
+
 function getCSSVar(name) {
   return getComputedStyle(document.documentElement)
            .getPropertyValue(name)

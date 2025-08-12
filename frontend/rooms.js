@@ -308,58 +308,76 @@ function wireBulkFixModal() {
   });
 
   // Confirm bulk fix
-  bulkFixForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    const roomID  = roomSelect.value;
-    const fixedOn = bulkFixDateTime.value;
-    const name    = bulkFixerInput.value.trim();
-    const fixer   = userRoster.find(u => u.fullName === name);
-    if (!fixer) return alert('Pick a name from the list');
+  // Confirm bulk fix
+bulkFixForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const roomID  = roomSelect.value;
+  const fixedOn = bulkFixDateTime.value;              // "YYYY-MM-DDTHH:MM"
+  const fixedOnMySQL = fixedOn.replace('T', ' ') + ':00';
+  const name    = bulkFixerInput.value.trim();
+  const fixer   = userRoster.find(u => u.fullName === name);
+  if (!fixer) return alert('Pick a name from the list');
 
-    bulkFixModal.classList.add('hidden');
+  bulkFixModal.classList.add('hidden');
 
-    const cards = $$('.pc-card');
-    try {
-      for (const card of cards) {
-        setCardVisual(card, 'Working');
+  const cards = $$('.pc-card');
+  const skipped = [];
+  const processed = [];
 
-        // 1) mark Working + get new ticket
-        const { serviceTicketID } = await fetchJSON(
-          API_BASE + 'update-status',
-          {
-            method: 'POST',
-            headers: { 'Content-Type':'application/json' },
-            body: JSON.stringify({
-              roomID,
-              pcNumber: card.dataset.pc,
-              status: 'Working',
-              issues: [],
-              userID: user.id
-            })
-          }
-        );
+  try {
+    for (const card of cards) {
+      // ⛔ skip broken PCs
+      if (card.dataset.status === 'Defective') {
+        skipped.push(card.dataset.pc);
+        continue;
+      }
 
-        // 2) log fix on chosen datetime & by chosen fixer
-        await fetchJSON(API_BASE + 'fix', {
+      processed.push(card.dataset.pc);
+
+      // mark Working + get a ticket
+      const { serviceTicketID } = await fetchJSON(
+        API_BASE + 'update-status',
+        {
           method: 'POST',
           headers: { 'Content-Type':'application/json' },
           body: JSON.stringify({
             roomID,
             pcNumber: card.dataset.pc,
-            fixedOn,
-            fixedBy: fixer.userId,
-            serviceTicketID
+            status: 'Working',
+            issues: [],
+            userID: user.id
           })
-        });
-      }
+        }
+      );
 
-      alert(`All PCs fixed on ${fixedOn} by ${fixer.fullName}`);
-    } catch (err) {
-      console.error(err);
-      alert('Bulk fix failed—refreshing grid');
-      loadPCs(roomID);
+      // log the check/fix at the chosen time & fixer
+      await fetchJSON(API_BASE + 'fix', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          roomID,
+          pcNumber: card.dataset.pc,
+          fixedOn: fixedOnMySQL,      // "YYYY-MM-DD HH:MM:00"
+          fixedBy: fixer.userId,
+          serviceTicketID
+        })
+      });
+
+      setCardVisual(card, 'Working');
     }
-  });
+
+    const msg = [
+      `Checked ${processed.length} PCs on ${fixedOn} by ${fixer.fullName}.`,
+      skipped.length ? `Skipped (defective): ${skipped.join(', ')}` : ''
+    ].filter(Boolean).join('\n');
+    alert(msg);
+  } catch (err) {
+    console.error(err);
+    alert('Bulk fix failed—refreshing grid');
+    loadPCs(roomID);
+  }
+});
+
 }
 
 // ───── 12. Add-Room modal ───────────────────────────────────────
@@ -444,4 +462,21 @@ document.addEventListener('DOMContentLoaded', () => {
     pcGrid.classList.toggle('config-2', currentConfig===2);
     loadPCs(roomSelect.value);
   });
+});
+
+
+/* rooms theme hook */
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.theme-toggle-btn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const dark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      btn.textContent = dark ? '☀️' : '🌙';
+    });
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+      btn.textContent = '☀️';
+    }
+  }
 });

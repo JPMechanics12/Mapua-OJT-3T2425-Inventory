@@ -7,19 +7,28 @@
     location.href = 'login.html';
     return;
   }
+// adminUsers.js (replace the name/avatar block with this)
+const nameRaw =
+  me.name ??
+  [me.firstName, me.lastName].filter(Boolean).join(' ').trim() ??
+  '';
 
-  // 2️⃣ Render avatar, name & sign-out
-// 2️⃣ Render avatar, name & sign-out
-const initials = me.name
-  .split(' ')
-  .map(n => n[0].toUpperCase())
-  .slice(0,2)
-  .join('');
-document.querySelectorAll('.avatar').forEach(el => el.textContent = initials);
+const safeName = nameRaw || 'User';
+const firstName = safeName.split(/\s+/)[0];
+const initials = safeName
+  .split(/\s+/)
+  .map(s => s[0])
+  .slice(0, 2)
+  .join('')
+  .toUpperCase();
 
-const firstName = me.name.trim().split(' ')[0];
-document.querySelectorAll('.profile-name, .username')
-  .forEach(el => el.textContent = "Hi, " + firstName + "!");
+document.querySelectorAll('.avatar').forEach(el => (el.textContent = initials));
+
+// Fill ALL possible targets: sidebar (.user-name or .profile-name) and topbar (.username)
+document
+  .querySelectorAll('.user-name, .profile-name, .username')
+  .forEach(el => (el.textContent = `Hi, ${firstName}!`));
+
 
 document.getElementById('signout-btn')
   .addEventListener('click', () => {
