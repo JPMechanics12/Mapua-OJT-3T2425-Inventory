@@ -137,8 +137,14 @@
   max-width: 1000px;
   margin: 0 auto;
 }
+/* Narrower Config 2 layout */
 .pc-grid.config-2 {
-  grid-template-columns: repeat(3, 1fr) 5rem repeat(5, 1fr);
+  grid-template-columns:
+    repeat(3, minmax(70px, 1fr))     /* Left block */
+    minmax(30px, 4vw)                /* Aisle, smaller */
+    repeat(5, minmax(70px, 1fr));    /* Right block */
+  gap: 0.75rem;                      /* Slightly smaller gap */
+  justify-content: center;           /* Center the whole grid */
 }
 
 /* Responsive collapse */
