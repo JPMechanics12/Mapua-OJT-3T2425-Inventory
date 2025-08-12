@@ -14,7 +14,7 @@ DB_CONFIG = {
     'host': '127.0.0.1', 
     'port': 3306,
     'user': 'root',
-    'password': 'James1203@', 
+    'password': 'admin12345', 
     'database': 'mapuainventory',
     'time_zone': '+08:00' # Set MySQL timezone to UTC+8 (Philippines)
 }
